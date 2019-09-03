@@ -64,7 +64,7 @@
       </v-flex>
 
       <v-flex v-if="results" mb-5 xs12>
-        <v-card style="padding-top: 15px;">
+        <v-card style="padding: 15px 0 15px 0;">
           <h2 class="headline">Result</h2>
           <v-layout justify-center>
             <v-simple-table fixed-header>
