@@ -22,14 +22,13 @@
         </p>
       </v-flex>
 
-      <!-- TODO add loading animation (waiting for model) -->
       <v-flex
-        v-if="net"
         mb-5
         xs12
       >
         <v-layout justify-center>
           <v-file-input
+                  v-if="net"
                   style="max-width: 260px"
                   :rules="rules"
                   accept="image/png, image/jpeg, image/bmp, image/jpg"
@@ -39,6 +38,12 @@
                   flat
                   @change="selectFile"
           ></v-file-input>
+          <v-progress-circular
+                  v-if="load"
+                  :size="50"
+                  color="primary"
+                  indeterminate
+          ></v-progress-circular>
         </v-layout>
       </v-flex>
 
@@ -59,23 +64,25 @@
       </v-flex>
 
       <v-flex v-if="results" mb-5 xs12>
-        <h2>Result</h2>
-        <v-layout justify-center>
-          <v-simple-table fixed-header height="300px">
-            <thead>
-            <tr>
-              <th class="text-left">Class name</th>
-              <th class="text-left">Probability</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr v-for="(result, i) in results" :key="i">
-              <td style="text-align: left">{{ result.className }}</td>
-              <td style="text-align: left">{{ result.probability }}</td>
-            </tr>
-            </tbody>
-          </v-simple-table>
-        </v-layout>
+        <v-card style="padding-top: 15px;">
+          <h2 class="headline">Result</h2>
+          <v-layout justify-center>
+            <v-simple-table fixed-header>
+              <thead>
+              <tr>
+                <th class="text-left">Class name</th>
+                <th class="text-left">Probability</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr v-for="(result, i) in results" :key="i">
+                <td style="text-align: left">{{ result.className }}</td>
+                <td style="text-align: left">{{ result.probability }}</td>
+              </tr>
+              </tbody>
+            </v-simple-table>
+          </v-layout>
+        </v-card>
       </v-flex>
 
     </v-layout>
@@ -88,11 +95,12 @@ export default {
   title: 'Classifier',
   data: () => ({
     rules : [
-      value => !value || value.size < 2000000 || 'Image size should be less than 2 MB!',
+      value => !value || value.size < 20000000 || 'Image size should be less than 2 MB!',
     ],
     net: null,
     img: null,
     results: null,
+    load: false
   }),
   methods: {
     selectFile(file) {
@@ -124,10 +132,13 @@ export default {
     }
   },
   mounted() {
+    this.load = true
     mobilenet.load().then(res => {
       this.net = res
+      this.load = false
       console.warn('sucessfully loaded model')
     }).catch(err => {
+      this.load = false
       alert(err.message)
     })
   }
